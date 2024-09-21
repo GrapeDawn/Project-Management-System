@@ -15,20 +15,33 @@ export default function Login() {
     });
   };
 
+  const setCookie = (name, value, days) => {
+    let expires = "";
+    if (days) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('https://o1gk7huir8.execute-api.ap-south-1.amazonaws.com/dev/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-        credentials: 'include',  // Sends the cookie with the request
       });
 
       if (response.ok) {
         const data = await response.json();
+
+        // Store token and role in cookies
+        setCookie('auth-token', data.token, 7); // Storing token for 7 days
+        setCookie('user-role', data.role, 7);   // Storing role for 7 days
 
         // Redirect based on the user role
         switch (data.role) {
