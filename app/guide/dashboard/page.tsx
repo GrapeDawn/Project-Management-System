@@ -1,46 +1,58 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
-import { Check, X, FileText, Users, BookOpen } from 'lucide-react'
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Check, X, FileText, Users, BookOpen } from 'lucide-react';
+import Cookies from "js-cookie";
 
 // Mock data - replace with actual API calls in a real application
 const studentGroups = [
   { id: 1, name: 'Group A', members: ['John Doe', 'Jane Smith'], progress: 75 },
   { id: 2, name: 'Group B', members: ['Alice Johnson', 'Bob Williams'], progress: 60 },
   { id: 3, name: 'Group C', members: ['Charlie Brown', 'Diana Davis'], progress: 90 },
-]
+];
 
 const submissions = [
   { id: 1, groupId: 1, title: 'Project Proposal', status: 'Pending', date: '2023-06-01' },
   { id: 2, groupId: 2, title: 'Midterm Report', status: 'Approved', date: '2023-06-15' },
   { id: 3, groupId: 3, title: 'Final Presentation', status: 'Pending', date: '2023-06-30' },
-]
+];
 
 const examResults = [
   { id: 1, groupId: 1, examTitle: 'Midterm Exam', marks: 85, remarks: 'Good performance, needs improvement in methodology' },
   { id: 2, groupId: 2, examTitle: 'Final Exam', marks: 92, remarks: 'Excellent work, well-structured presentation' },
   { id: 3, groupId: 3, examTitle: 'Project Defense', marks: 88, remarks: 'Strong concept, could improve on time management' },
-]
+];
 
 export default function GuideDashboard() {
-  const [selectedGroup, setSelectedGroup] = useState<number | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = Cookies.get("guide-token"); // Assuming guide token is stored under 'guide-token'
+
+    if (!token) {
+      alert("Unauthorized access. Please log in.");
+      router.push("/login");
+    }
+  }, [router]);
 
   const filteredGroups = studentGroups.filter(group =>
     group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     group.members.some(member => member.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  );
 
-  const groupSubmissions = submissions.filter(submission => submission.groupId === selectedGroup)
-  const groupExams = examResults.filter(exam => exam.groupId === selectedGroup)
+  const groupSubmissions = submissions.filter(submission => submission.groupId === selectedGroup);
+  const groupExams = examResults.filter(exam => exam.groupId === selectedGroup);
 
   return (
     <div className="p-8">

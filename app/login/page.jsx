@@ -39,16 +39,17 @@ export default function Login() {
       if (response.ok) {
         const data = await response.json();
 
-        // Store token and role in cookies
-        setCookie('auth-token', data.token, 7); // Storing token for 7 days
-        setCookie('user-role', data.role, 7);   // Storing role for 7 days
+        // Store token, role, and email in cookies
+        setCookie('auth-token', data.token, 7);   // Storing token for 7 days
+        setCookie('user-role', data.role, 7);     // Storing role for 7 days
+        setCookie('user-email', formData.email, 7); // Storing email for 7 days
 
         // Redirect based on the user role
         switch (data.role) {
           case 'admin':
             router.push('/admin/dashboard');
             break;
-          case 'student':
+          case 'user':
             router.push('/student/dashboard');
             break;
           case 'guide':

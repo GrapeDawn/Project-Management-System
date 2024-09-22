@@ -1,26 +1,39 @@
-import React from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { BarChart, Bell, Home, Layers, LayoutDashboard, List, Plus, Settings, Users } from "lucide-react"
-import Link from "next/link"
+'use client'
 
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { BarChart, Bell, Home, Layers, LayoutDashboard, List, Plus, Settings, Users } from "lucide-react";
+import Cookies from "js-cookie";
 
 export default function AdminDashboard() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = Cookies.get("admin-token"); // Assuming admin token is stored under 'admin-token'
+
+    if (!token) {
+      alert("Unauthorized access. Please log in.");
+      router.push("/login");
+    }
+  }, [router]);
+
   // Mock data for demonstration
   const projectStatuses = [
     { name: "Completed", value: 45 },
     { name: "In Progress", value: 35 },
     { name: "Not Started", value: 20 },
-  ]
+  ];
 
   const recentActivities = [
     { user: "John Doe", action: "completed task", project: "Website Redesign", time: "2 hours ago" },
     { user: "Jane Smith", action: "created new project", project: "Mobile App", time: "5 hours ago" },
     { user: "Mike Johnson", action: "updated deadline", project: "Database Migration", time: "1 day ago" },
-  ]
+  ];
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -228,5 +241,5 @@ export default function AdminDashboard() {
         </Card>
       </main>
     </div>
-  )
+  );
 }
