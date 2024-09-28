@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Sidebar from "@/components/Sidebar"; // Make sure to import the Sidebar component
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Check, X, FileText, Users, BookOpen } from 'lucide-react';
+import { Check, X, FileText } from 'lucide-react';
 import Cookies from "js-cookie";
 
 // Mock data - replace with actual API calls in a real application
@@ -38,9 +38,9 @@ export default function GuideDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = Cookies.get("guide-token"); // Assuming guide token is stored under 'guide-token'
+    const token = Cookies.get("user-role"); // Assuming guide token is stored under 'guide-token'
 
-    if (!token) {
+    if (!token || token !== "guide") {
       alert("Unauthorized access. Please log in.");
       router.push("/login");
     }
@@ -55,164 +55,173 @@ export default function GuideDashboard() {
   const groupExams = examResults.filter(exam => exam.groupId === selectedGroup);
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Guide Dashboard</h1>
+    <div className="flex h-screen">
+      {/* Sidebar Component */}
+      <Sidebar />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Groups</CardTitle>
-            <CardDescription>Number of groups you're mentoring</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold">{studentGroups.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Pending Submissions</CardTitle>
-            <CardDescription>Submissions awaiting approval</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold">{submissions.filter(s => s.status === 'Pending').length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Average Progress</CardTitle>
-            <CardDescription>Overall progress of all groups</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold">
-              {Math.round(studentGroups.reduce((acc, group) => acc + group.progress, 0) / studentGroups.length)}%
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Main Content */}
+      <div className="flex-1 p-8 overflow-auto">
+        <h1 className="text-3xl font-bold mb-6">Guide Dashboard</h1>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Select Student Group</CardTitle>
-          <CardDescription>Choose a group to view details and manage submissions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 mb-4">
-            <div className="flex-grow">
-              <Input
-                placeholder="Search groups or students"
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-              />
+        {/* Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Groups</CardTitle>
+              <CardDescription>Number of groups you're mentoring</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold">{studentGroups.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Pending Submissions</CardTitle>
+              <CardDescription>Submissions awaiting approval</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold">{submissions.filter(s => s.status === 'Pending').length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Average Progress</CardTitle>
+              <CardDescription>Overall progress of all groups</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold">
+                {Math.round(studentGroups.reduce((acc, group) => acc + group.progress, 0) / studentGroups.length)}%
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Select Group and List */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Select Student Group</CardTitle>
+            <CardDescription>Choose a group to view details and manage submissions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 mb-4">
+              <div className="flex-grow">
+                <Input
+                  placeholder="Search groups or students"
+                  value={searchTerm}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Select onValueChange={(value: string) => setSelectedGroup(Number(value))}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select a group" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredGroups.map((group) => (
+                    <SelectItem key={group.id} value={group.id.toString()}>
+                      {group.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select onValueChange={(value: string) => setSelectedGroup(Number(value))}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select a group" />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredGroups.map((group) => (
-                  <SelectItem key={group.id} value={group.id.toString()}>
-                    {group.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Group Name</TableHead>
-                <TableHead>Members</TableHead>
-                <TableHead>Progress</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredGroups.map((group) => (
-                <TableRow key={group.id} className="cursor-pointer" onClick={() => setSelectedGroup(group.id)}>
-                  <TableCell>{group.name}</TableCell>
-                  <TableCell>{group.members.join(', ')}</TableCell>
-                  <TableCell>
-                    <Progress value={group.progress} className="w-[60%]" />
-                  </TableCell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Group Name</TableHead>
+                  <TableHead>Members</TableHead>
+                  <TableHead>Progress</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {selectedGroup && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{studentGroups.find(g => g.id === selectedGroup)?.name} Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="submissions">
-              <TabsList>
-                <TabsTrigger value="submissions">Submissions</TabsTrigger>
-                <TabsTrigger value="exams">Exam Results</TabsTrigger>
-              </TabsList>
-              <TabsContent value="submissions">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {groupSubmissions.map((submission) => (
-                      <TableRow key={submission.id}>
-                        <TableCell>{submission.title}</TableCell>
-                        <TableCell>{submission.date}</TableCell>
-                        <TableCell>{submission.status}</TableCell>
-                        <TableCell>
-                          {submission.status === 'Pending' && (
-                            <div className="flex gap-2">
-                              <Button size="sm" onClick={() => alert('Submission approved')}>
-                                <Check className="w-4 h-4 mr-1" /> Approve
-                              </Button>
-                              <Button size="sm" variant="destructive" onClick={() => alert('Submission rejected')}>
-                                <X className="w-4 h-4 mr-1" /> Reject
-                              </Button>
-                            </div>
-                          )}
-                          {submission.status === 'Approved' && (
-                            <Button size="sm" variant="outline" onClick={() => alert('Viewing submission')}>
-                              <FileText className="w-4 h-4 mr-1" /> View
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TabsContent>
-              <TabsContent value="exams">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Exam Title</TableHead>
-                      <TableHead>Marks</TableHead>
-                      <TableHead>Remarks</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {groupExams.map((exam) => (
-                      <TableRow key={exam.id}>
-                        <TableCell>{exam.examTitle}</TableCell>
-                        <TableCell>{exam.marks}</TableCell>
-                        <TableCell>{exam.remarks}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TabsContent>
-            </Tabs>
+              </TableHeader>
+              <TableBody>
+                {filteredGroups.map((group) => (
+                  <TableRow key={group.id} className="cursor-pointer" onClick={() => setSelectedGroup(group.id)}>
+                    <TableCell>{group.name}</TableCell>
+                    <TableCell>{group.members.join(', ')}</TableCell>
+                    <TableCell>
+                      <Progress value={group.progress} className="w-[60%]" />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
-      )}
+
+        {/* Group Details */}
+        {selectedGroup && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{studentGroups.find(g => g.id === selectedGroup)?.name} Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="submissions">
+                <TabsList>
+                  <TabsTrigger value="submissions">Submissions</TabsTrigger>
+                  <TabsTrigger value="exams">Exam Results</TabsTrigger>
+                </TabsList>
+                <TabsContent value="submissions">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {groupSubmissions.map((submission) => (
+                        <TableRow key={submission.id}>
+                          <TableCell>{submission.title}</TableCell>
+                          <TableCell>{submission.date}</TableCell>
+                          <TableCell>{submission.status}</TableCell>
+                          <TableCell>
+                            {submission.status === 'Pending' && (
+                              <div className="flex gap-2">
+                                <Button size="sm" onClick={() => alert('Submission approved')}>
+                                  <Check className="w-4 h-4 mr-1" /> Approve
+                                </Button>
+                                <Button size="sm" variant="destructive" onClick={() => alert('Submission rejected')}>
+                                  <X className="w-4 h-4 mr-1" /> Reject
+                                </Button>
+                              </div>
+                            )}
+                            {submission.status === 'Approved' && (
+                              <Button size="sm" variant="outline" onClick={() => alert('Viewing submission')}>
+                                <FileText className="w-4 h-4 mr-1" /> View
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+                <TabsContent value="exams">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Exam Title</TableHead>
+                        <TableHead>Marks</TableHead>
+                        <TableHead>Remarks</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {groupExams.map((exam) => (
+                        <TableRow key={exam.id}>
+                          <TableCell>{exam.examTitle}</TableCell>
+                          <TableCell>{exam.marks}</TableCell>
+                          <TableCell>{exam.remarks}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
-  )
+  );
 }

@@ -1,22 +1,23 @@
-'use client'
+'use client';
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Sidebar from '@/components/Sidebar'; // Import the Sidebar component
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bell, Home, Layers, LayoutDashboard, List, Plus, Settings, Users } from "lucide-react";
+import { Bell, Plus } from "lucide-react";
 import Cookies from "js-cookie";
 
 export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = Cookies.get("admin-token"); // Assuming admin token is stored under 'admin-token'
+    const token = Cookies.get("user-role");
 
-    if (!token) {
+    if (!token || token !== "admin") {
       alert("Unauthorized access. Please log in.");
       router.push("/login");
     }
@@ -37,39 +38,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white p-4 shadow-md">
-        <div className="flex items-center mb-8">
-          <LayoutDashboard className="h-6 w-6 text-blue-600 mr-2" />
-          <h1 className="text-xl font-bold">AdminPro</h1>
-        </div>
-        <nav className="space-y-2">
-          <Button variant="ghost" className="w-full justify-start">
-            <Home className="mr-2 h-4 w-4" />
-            Dashboard
-          </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <Layers className="mr-2 h-4 w-4" />
-            Projects
-          </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <Users className="mr-2 h-4 w-4" />
-            Users
-          </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <List className="mr-2 h-4 w-4" />
-            Tasks
-          </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <BarChart className="mr-2 h-4 w-4" />
-            Analytics
-          </Button>
-          <Button variant="ghost" className="w-full justify-start">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
-        </nav>
-      </aside>
+      
+      <Sidebar /> 
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
@@ -95,7 +65,6 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-              <Layers className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">34</div>
@@ -105,7 +74,6 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">2,345</div>
@@ -115,7 +83,6 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
-              <List className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">12,875</div>
@@ -125,7 +92,6 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Project Completion Rate</CardTitle>
-              <BarChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">68%</div>
@@ -147,10 +113,7 @@ export default function AdminDashboard() {
                   <div key={index} className="flex items-center">
                     <div className="w-36 font-medium">{status.name}</div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className="bg-blue-600 h-2.5 rounded-full"
-                        style={{ width: `${status.value}%` }}
-                      ></div>
+                      <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${status.value}%` }}></div>
                     </div>
                     <div className="w-12 text-right">{status.value}%</div>
                   </div>
@@ -163,7 +126,6 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>User Management</CardTitle>
-              <CardDescription>Manage system users</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex mb-4">
@@ -231,9 +193,7 @@ export default function AdminDashboard() {
                       Project: {activity.project}
                     </p>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {activity.time}
-                  </div>
+                  <div className="text-sm text-muted-foreground">{activity.time}</div>
                 </div>
               ))}
             </div>
